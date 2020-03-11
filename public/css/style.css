@@ -1,0 +1,89 @@
+body { 
+  
+    background: url(/public/images/planet.jpg) no-repeat center center fixed;
+    background-size: cover;
+    height: 100%;
+    overflow: scroll;
+    border-style: inset;
+  }
+  
+  h1 {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .container-fluid {
+    /* text-align: center; */
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 5%;
+  }
+  
+  #instAndButttons{
+    width: 100%;
+    text-align: center;
+  }
+  
+  #articles {
+    background-color: rgba(0, 0, 15, 0.489);
+    padding: 20px;
+    margin: 5px;
+  }
+  
+  .media-body h5 a {
+    color: white;
+  }
+  
+  .media {
+    padding: 10px;
+    color: rgba(255, 255, 255, 0.639);
+  }
+  
+  #articles h6 {
+    color: white;
+  }
+  
+  #scraper {
+    background-color: #F15B1C;
+  }
+  
+  #deleteAll {
+    background-color: #00000F;
+  }
+  
+  #nasaORG {
+    background-color: #4C85C5;
+  }
+  
+  /* #articles {
+    display: inline-block;
+    overflow: auto;
+    width: 60%;
+    height: 700px;
+  } */
+  
+  .container-fluid img {
+    max-width: 300px;
+  }
+  
+  /* #notes {
+    float: right;
+    width: 30%;
+  } */
+  
+  textarea, input {
+    display: block;
+    width: 100%;
+    background-color: #FCF5C7;
+  }
+  
+  input {
+    height: 36px;
+    font-size: 24px;
+  }
+  
+  textarea {
+    height: 200px;
+    font-size: 18px;
+  }

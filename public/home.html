@@ -1,59 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>Pay2Win</title>
-        <meta charset="UTF-8">
-        <meta content="width=device-width, initial-scale=1.0" name="viewport">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/lumen/bootstrap.min.css">
-        <script type="text/javascript" src="https://bam.nr-data.net/1/5e33925808?a=80617260&amp;v=1167.2a4546b&amp;to=JVcPR0MLWApSRU1SExZUCFBQEF0JWRgLXQcDQA%3D%3D&amp;rst=1370&amp;ref=https://solarsystem.nasa.gov/&amp;ap=434&amp;be=42&amp;fe=1209&amp;dc=514&amp;af=err,xhr,stn,ins&amp;perf=%7B%22timing%22:%7B%22of%22:1583923165766,%22n%22:0,%22u%22:15,%22ue%22:15,%22f%22:1,%22dn%22:1,%22dne%22:1,%22c%22:1,%22ce%22:1,%22rq%22:4,%22rp%22:5,%22rpe%22:6,%22dl%22:28,%22di%22:514,%22ds%22:514,%22de%22:816,%22dc%22:1209,%22l%22:1209,%22le%22:1263%7D,%22navigation%22:%7B%22ty%22:2%7D%7D&amp;fp=319&amp;fcp=319&amp;jsonp=NREUM.setToken"></script>
-        <link href="./assets/css/style.css" rel="stylesheet">
-      </head>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>NASA News Scraper</title>
 
+    <!-- BOOT STRAP -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./css/style.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
 
-<body>
-    <div data-image="/system/basic_html_elements/11861_Morgan_Cable_Enceladus_1600.jpg" data-mobile-image="/system/basic_html_elements/11861_Morgan_Cable_Enceladus_400.jpg" id="featured_image" style="visibility: hidden; height: 559px;"></div>
-    <div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Planet Scraper</a>
+  <body>
+    
+      <nav class="navbar navbar-dark bg-dark navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" href="#">Mongo News Scraper (NASA.org)</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item active">
+                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="savedArticlesBtn">Saved Articles</a>
+              </li>
+            </ul>
+          </div>
+      </nav>
+    
+    <div class="container-fluid">
+    <!-- <div id="wrapper"> -->
+        <h1>NASA News Scraper</h1>
+      <div id="articles">
+          <div id="instAndButttons">
+            <h6>Click "Retrieve New Articles" to get new articles from NASA.org.</h6>
+            <h6>Save each article and/or add notes to each article.</h6>
+            <button type="button" class="btn btn-danger" id="scraper">Retrieve New Articles</button>
+            <button type="button" class="btn btn-info" id="deleteAll">Clear Unsaved Articles</button>
+            <button type="button" class="btn btn-info" id="nasaORG">NASA.org</button>
+          </div>
+          <br>
+          <br>
+      </div>
     </div>
 
-    <div id="articles"></div>
-    <div id="notes"></div>
+    <div class="modal fade" id="notesModal" tabindex="-1" role="dialog" aria-labelledby="notesModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
 
+          <div class="modal-header">
+            <h5 class="modal-title" id="notesModalLabel"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
 
-    <div>
-        <form action="/submit" method="post">
-            <h1>Hi User!</h1>
-            <h2>Enter a Note!</h2>
-            <input type="text" name="title" placeholder="Title">
-            <textarea type="text" name="body" placeholder="Write Note Here"></textarea>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="noteTitle" class="col-form-label">Title:</label>
+                <input type="text" class="form-control" id="titleinput"  name='title'>
+              </div>
+              <div class="form-group">
+                <label for="bodyinput" class="col-form-label">Note:</label>
+                <textarea class="form-control" id="bodyinput" name='body'></textarea>
+              </div>
+            </form>
+          </div>
 
-            <input type="submit">
-            <a href="/notes">See your notes!</a>
-            <a href="/user">See your profile!</a>
-            <a href="/solarSystem">See your profile, populated with notes!</a>
-        </form>
-
-</div>
-
-
-    <!-- <script>
-        let newWindow = open('/.note.js', 'example', 'width=300,height=300')
-        newWindow.focus();
-
-        alert(newWindow.location.href); // (*) about:blank, loading hasn't started yet
-
-        newWindow.onload = function () {
-            let html = `<div style="font-size:30px">Welcome!</div>`;
-            newWindow.document.body.insertAdjacentHTML('afterbegin', html);
-        };
-    </script> -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="//script.crazyegg.com/pages/scripts/0070/1109.js" async="async"></script>
-    <script src="app.js"></script>
-
-
-
-</body>
-
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="deleteNote" data-dismiss="modal">Delete Note</button>
+            <button type="button" class="btn btn-primary" id="savenote" data-dismiss="modal">Save Note</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <!-- JS to run on page after loading -->
+    <script src="./js/app.js"></script>
+  </body>
+  
 </html>
+
