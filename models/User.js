@@ -38,37 +38,34 @@ var UserSchema = new Schema({
     unique: true,
     match: [/.+@.+\..+/, "Please enter a valid e-mail address"]
   },
-  // `date` must be of type Date. The default value is the current date
+    // `notes` is an array that stores ObjectIds
+  // The ref property links these ObjectIds to the Note model
+  // This allows us to populate the User with any associated Notes
+  notes: [
+    {
+      // Store ObjectIds in the array
+      type: Schema.Types.ObjectId,
+      // The ObjectIds will refer to the ids in the Note model
+      ref: "Note"
+    }
+  ],
   userCreated: {
     type: Date,
     default: Date.now
   },
-    // `isCool` must be of type Boolean
-  // `isCool` is set to false if no value is supplied for it
-  isCool: {
-    type: Boolean,
-    default: false
-  }
+    // `lastUpdated` must be of type Date
+  lastUpdated: Date,
 });
 
 // Custom Instance Methods
 
-// Custom method `coolifier`
-UserSchema.methods.coolifier = function() {
-  // Adds "...theCoolest" to the end of the current user's username
-  this.username = this.username + "...the Coolest coolest Planet of ALL!";
-  // Return the new username
-  return this.username;
+// Custom method `lastUpdatedDate`
+UserSchema.methods.lastUpdatedDate = function() {
+  // Set the current user's `lastUpdated` property to the current date/time
+  this.lastUpdated = Date.now();
+  // Return this new date
+  return this.lastUpdated;
 };
-
-// Custom method `makeCool`
-UserSchema.methods.makeCool = function() {
-  // Make the "isCool" property of the current user equal to the boolean "true"
-  this.isCool = true;
-  // Return the new boolean value
-  return this.isCool;
-};
-
 // This creates our model from the above schema, using mongoose's model method
 var User = mongoose.model("User", UserSchema);
 

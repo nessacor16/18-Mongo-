@@ -1,142 +1,164 @@
-const axios = require("axios");
-const db = require("../models");
-const express = require("express");
-const app = express();
-const cheerio = require("cheerio");
 
-  // Scrape route, saves to results, 
-  // creates article from model, 
-  // saves to DB, 
-  // returns dbArticle to app.js
-  app.get("/scrape", function(req, res) {
-    axios.get("http://www.npr.org").then(function(response) {
-      let $ = cheerio.load(response.data);
-      $(".story-wrap").each(function(i, element) {
-        let result = {};
+var express = require("express");
+var router = express.Router();
 
-        result.title = $(this)
-          .children(".story-text")
-          .children("a")
-          .children(".title")
-          .text();
-        result.link = $(this)
-          .children(".story-text")
-          .children("a")
-          .attr("href");
-        result.summary = $(this)
-          .children(".story-text")
-          .children("a")
-          .children("p")
-          .text();
-        result.image = $(this)
-          .children("figure")
-          .children("div")
-          .children("div")
-          .children("a")
-          .children("img")
-          .attr("src");
+var request = require("request");
+var cheerio = require("cheerio");
 
-        db.Article.create(result)
-          .then(function(dbArticle) {
-            console.log(dbArticle);
-          })
-          .catch(function(err) {
-            console.log(err);
+var Note = require("../models/Note.js");
+var Article = require("../models/Article.js");
+
+router.get("/", function(req, res) {
+  res.redirect("/articles");
+});
+
+router.get("/scrape", function(req, res) {
+  request("https://solarsystem.nasa.gov/planets/overview/", function(error, response, html) {
+    var $ = cheerio.load(html);
+    var titlesArray = [];
+
+    $(".tabs_grid_desc").each(function(i, element) {
+      var result = {};
+
+      result.title = $(this)
+      .children("h3")
+        .children("<div>")
+        .text();
+      result.link = $(this)
+      .children("h3")
+        .children("<div>")
+        .attr("href");
+
+      if (result.title !== "" && result.link !== "") {
+        if (titlesArray.indexOf(result.title) == -1) {
+          titlesArray.push(result.title);
+
+          Article.count({ title: result.title }, function(err, test) {
+            if (test === 0) {
+              var entry = new Article(result);
+
+              entry.save(function(err, doc) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  console.log(doc);
+                }
+              });
+            }
           });
-      });
-      res.json("/");
+        } else {
+          console.log("Article already exists.");
+        }
+      } else {
+        console.log("Not saved to DB, missing data");
+      }
     });
+    res.redirect("/");
   });
+});
+router.get("/articles", function(req, res) {
+  Article.find()
+    .sort({ _id: -1 })
+    .exec(function(err, doc) {
+      if (err) {
+        console.log(err);
+      } else {
+        var artcl = { article: doc };
+        console.log(doc[0].title);
+        console.log(doc[0]._id);
+        // console.log('ARTICLES', artcl);
+        
+        res.render("index", artcl);
+      }
+    });
+});
 
-  // Get saved articles
-  app.get("/articles/savedArticles", function(req, res){
-    db.Article.find({
-      saved: true
-    })
-    .then(function(dbSavedArticles){
-      res.json(dbSavedArticles);
-    })
+router.get("/articles-json", function(req, res) {
+  Article.find({}, function(err, doc) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.json(doc);
+    }
   });
+});
 
-  // Save articles
-  app.post("/articles/saveOneArticle/:id", function(req, res){
-    db.Article.findByIdAndUpdate(req.params.id, { saved: true })
-    .then(function(dbSavedArticle){
-      res.json(dbSavedArticle);
-    })
-    .catch(function(err){
-      res.json(err);
-    })
+router.get("/clearAll", function(req, res) {
+  Article.remove({}, function(err, doc) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log("removed all articles");
+    }
   });
-  
-  // Get articles for main page.
-  app.get("/articles", function(req, res) {
-    db.Article.find({
-      saved: false
-    })
-    .then(function(dbArticles){
-      res.json(dbArticles);
-    })
+  res.redirect("/articles-json");
+});
+
+router.get("/readArticle/:id", function(req, res) {
+  var articleId = req.params.id;
+  var hbsObj = {
+    article: [],
+    body: []
+  };
+console.log('GETTING ARTICLE')
+  Article.findOne({ _id: articleId })
+    .populate("Note")
+    .exec(function(err, doc) {
+      if (err) {
+        console.log("Error: " + err);
+      } else {
+        console.log('FOUND ARTICLE', doc)
+        hbsObj.article = doc;
+        var link = 'https:' + doc.link;
+        console.log('link is', link)
+        request(link, function(error, response, html) {
+          console.log('got HTML', html)
+          var $ = cheerio.load(html);
+
+          $("p.speakable").each(function(i, element) {
+            console.log('inside p', i)
+            hbsObj.body = hbsObj.body + $(element).text();
+          });
+
+          console.log('hbsObj', hbsObj)
+          res.render("article", hbsObj);
+            return false;
+        });
+      }
+    });
+});
+router.post("/Note/:id", function(req, res) {
+  var user = req.body.name;
+  var content = req.body.Note;
+  var articleId = req.params.id;
+
+  var NoteObj = {
+    name: user,
+    body: content
+  };
+
+  var newNote = new Note(NoteObj);
+
+  newNote.save(function(err, doc) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(doc._id);
+      console.log(articleId);
+
+      Article.findOneAndUpdate(
+        { _id: req.params.id },
+        { $push: { Note: doc._id } },
+        { new: true }
+      ).exec(function(err, doc) {
+        if (err) {
+          console.log(err);
+        } else {
+          res.redirect("/readArticle/" + articleId);
+        }
+      });
+    }
   });
-  
-  // get notes from db and populate for this ID
-  app.get("/articles/:id", function(req, res) {
-    db.Article.findOne({ _id: req.params.id})
-    .populate("note")
-    .then(function(dbArticles){
-      res.json(dbArticles)
-    })
-  });
-  
-  // update artticle on DB with not ID
-  app.post("/notes/:id", function(req, res) {
-    db.Note.create(req.body)
-      .then(function(dbNote) {
-        return db.Article.findByIdAndUpdate(req.params.id, { note: dbNote._id });
-      })
-      .then(function(dbArticle){
-        res.json(dbArticle);
-      })
-      .catch(function(err){
-        res.json(err);
-      })
-  });
+});
 
-  // delete note for article
-  app.delete("/notes/:id", function(req, res) {
-    db.Note.deleteOne(req.body)
-    .then(function(dbNote){
-      return db.Article.findByIdAndUpdate(req.params.id, { note: dbNote._id });
-    })
-    .then(function(deleted){
-      res.json(deleted);
-    })
-    .catch(function(err){
-      res.json(err);
-    })
-  });
-
-  // Delete one article from DB.
-  app.delete("/articles/deleteOne/:id", function(req, res){
-    db.Article.findByIdAndDelete({_id: req.params.id})
-    .then(function(deleted){
-      res.json(deleted);
-    })
-    .catch(function(err){
-      res.json(err);
-    })
-  })
-
-
-  // Delete all articles except saved articles from DB.
-  app.delete("/articles/deleteAll", function(req, res){
-    db.Article.deleteMany({ saved: false })
-    .then(function(deleted){
-      res.json(deleted);
-    })
-    .catch(function(err){
-      res.json(err);
-    })
-  })
-
-module.exports = app;
+module.exports = router;

@@ -1,8 +1,7 @@
 body { 
-  
-    background: url(/public/images/planet.jpg) no-repeat center center fixed;
-    background-size: cover;
-    height: 100%;
+    /* background-image: url(/public/images/planet.jpg); */
+    /* background-size: cover; */
+    /* height: 100%; */
     overflow: scroll;
     border-style: inset;
   }
@@ -44,15 +43,15 @@ body {
     color: white;
   }
   
-  #scraper {
-    background-color: #F15B1C;
+  #articles{
+    background-color: rgba(31, 31, 117, 0.768);
   }
   
   #deleteAll {
-    background-color: #00000F;
+    background-color: rgba(10, 10, 51, 0.918);
   }
   
-  #nasaORG {
+  #nasaGov {
     background-color: #4C85C5;
   }
   
