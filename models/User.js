@@ -54,6 +54,7 @@ var UserSchema = new Schema({
     default: Date.now
   },
     // `lastUpdated` must be of type Date
+  // `lastUpdated` must be of type Date
   lastUpdated: Date,
 });
 
