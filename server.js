@@ -27,10 +27,14 @@ mongoose.set('useUnifiedTopology', true);
 
 // Mongo y Mongoose
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/solarSystem";
-mongoose.connect(MONGODB_URI, {useUnifiedTopology: true });
+// mongoose.connect(MONGODB_URI, {useUnifiedTopology: true });
+// Connect to the Mongo DB
 
 
-
+mongoose
+  .connect(MONGODB_URI, { useUnifiedTopology: true })
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.log(err))
 
 
 // Requiring the `User` model for accessing the `users` collection
@@ -38,7 +42,7 @@ mongoose.connect(MONGODB_URI, {useUnifiedTopology: true });
 // var Note = require("./models/Note.js");
 
 
-
+require("./controllers/apiRoutes")(app);
 require("./routes/html-routes.js")(app);
 // Routes
 
@@ -47,7 +51,6 @@ require("./routes/html-routes.js")(app);
 app.listen(PORT, function() {
   console.log("==> 🌎  Listening on port AWESOME %s. Visit http://localhost:%s/ in your browser.", PORT, PORT);
 });
-
 
 
 

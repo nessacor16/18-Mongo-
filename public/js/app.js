@@ -1,3 +1,27 @@
+// When you click the make-new button
+$(document).on("click", "#user-submit", function(event) {
+  event.preventDefault()
+  // Grab the id associated with the article from the submit button
+ window.location.assign("/home.html")
+
+  // Run a POST request to change the note, using what's entered in the inputs
+  // $.ajax({
+  //   method: "POST",
+  //   url: "/articles/" + thisId,
+  //   data: {
+  //     // Value taken from title input
+  //     title: $("#titleinput").val(),
+  //     // Value taken from note textarea
+  //     body: $("#bodyinput").val()
+  //   }
+  // })
+
+});
+
+
+
+
+
 // Grab the articles as a json
 $.getJSON("/articles", function(data) {
   // For each one
